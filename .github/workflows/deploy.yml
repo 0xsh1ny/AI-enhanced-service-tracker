@@ -1,0 +1,56 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build application
+      run: npm run build
+
+    - name: Run tests
+      run: npm run lint
+
+    - name: Build Docker image
+      run: docker build -t ai-service-tracker:${{ github.sha }} .
+
+    - name: Test Docker image
+      run: |
+        docker run -d -p 3000:3000 --name test-container ai-service-tracker:${{ github.sha }}
+        sleep 10
+        curl -f http://localhost:3000 || exit 1
+        docker stop test-container
+        docker rm test-container
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Deploy to production
+      run: |
+        echo "🚀 Deploying to production..."
+        # Add your deployment commands here
+        # For example, push to Docker registry, deploy to cloud provider, etc.
