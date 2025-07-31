@@ -17,7 +17,7 @@ A modern, responsive service work tracking application with AI-powered task summ
 
 1. Clone the repository:
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/0xsh1ny/AI-enhanced-service-tracker
 cd ai-service-tracker
 ```
 
